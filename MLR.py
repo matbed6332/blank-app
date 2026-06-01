@@ -18,14 +18,11 @@ if uploaded_file is not None:
     st.dataframe(df)
     st.divider()
     
-    y_col = st.selectbox(
-        "Select target column (y)", options=df.columns)
+    y_col = st.selectbox("Select target column (y)", options=df.columns)
 
-    index_col = st.selectbox(
-        "Select index column (optional)", options=["None"] + list(df.columns))
+    index_col = st.selectbox("Select index column (optional)", options=["None"] + list(df.columns))
 
-    drop_cols = st.multiselect(
-        "Select columns to drop", options=df.columns)
+    drop_cols = st.multiselect("Select columns to drop", options=df.columns)
     
     #Barplot
     percent_nan = percent_missing(df)
@@ -61,3 +58,19 @@ if uploaded_file is not None:
 
     st.write("### Processed Data")
     st.dataframe(processed_df)
+
+    test_every = st.number_input(
+    "Take every Nth compound to test set",
+    min_value=2,
+    value=3,
+    step=1)
+    
+    if y_col:
+        # sortowanie po Y
+        sorted_df = processed_df.sort_values(by=y_col).reset_index(drop=True)
+
+        # podział
+        split_df = regresive_model_split(sorted_df.copy(), test_every)
+
+        st.write(split_df["split"].value_counts())
+        st.dataframe(split_df.head())
